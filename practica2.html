@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -127,7 +127,12 @@ body{overflow-x:hidden}
   .btn{padding:6px 9px;font-size:.82em}
   #timer{font-size:.9em;min-width:56px}
 }
-</style>
+/* ── Aviso offline MathJax ── */
+#offline-bar{position:fixed;bottom:0;left:0;right:0;background:#b71c1c;color:#fff;
+  padding:11px 18px;text-align:center;font-size:.87em;line-height:1.6;z-index:9999;
+  display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap}
+#offline-bar button{background:#fff;color:#b71c1c;border:none;padding:3px 12px;
+  border-radius:4px;cursor:pointer;font-weight:bold;font-size:.9em}</style>
 </head>
 <body>
 <div id="app">
@@ -335,6 +340,29 @@ function typeset() {
   if (window.MathJax && MathJax.typesetPromise)
     MathJax.typesetPromise().catch(e => console.warn('MathJax:', e));
 }
+
+// ─── Detección offline MathJax ──────────────────────────────────────────────
+(function() {
+  function showOfflineBar() {
+    if (document.getElementById('offline-bar')) return;
+    var bar = document.createElement('div');
+    bar.id = 'offline-bar';
+    bar.innerHTML =
+      '<span><strong>&#9888; Sin conexi&oacute;n a internet:</strong> ' +
+      'las f&oacute;rmulas matem&aacute;ticas no se visualizan correctamente. ' +
+      'Conecte a internet y recargue la p&aacute;gina.</span>' +
+      '<button onclick="document.getElementById('+[char]39+'offline-bar'+[char]39+').remove()">&#10005; Cerrar</button>';
+    document.body.appendChild(bar);
+  }
+  setTimeout(function() {
+    if (!window.MathJax || typeof MathJax.typesetPromise !== 'function') {
+      showOfflineBar();
+    }
+  }, 5000);
+  window.addEventListener('error', function(e) {
+    if (e.filename && e.filename.indexOf('mathjax') !== -1) showOfflineBar();
+  }, true);
+})();
 </script>
 </body>
 </html>
